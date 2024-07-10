@@ -10,7 +10,7 @@ import threading
 import time
 from datetime import timedelta
 import codecs
-import tomllib
+import toml
 import argparse
 
 parser = argparse.ArgumentParser(
@@ -46,7 +46,7 @@ parser.add_argument(
 	action="store_true",
 )
 args = parser.parse_args()
-config = tomllib.load(open(args.config, "rb"))
+config = toml.load(args.config)
 config["test"]['dataset'] = args.dataset
 if args.url:
 	config["server"]["url"] = args.url
