@@ -30,6 +30,7 @@ parser.add_argument(
 	help="server url",
 )
 parser.add_argument("-a", "--api", help="api key")
+parser.add_argument("-d", "--dataset", help="Specify a dataset ID", default="TIGER-Lab/MMLU-Pro")
 parser.add_argument("-m", "--model", help="Model name")
 parser.add_argument(
 	"--timeout",
@@ -46,6 +47,7 @@ parser.add_argument(
 )
 args = parser.parse_args()
 config = tomllib.load(open(args.config, "rb"))
+config["test"]['dataset'] = args.dataset
 if args.url:
 	config["server"]["url"] = args.url
 if args.api:
@@ -85,8 +87,8 @@ def get_completion(prompt):
 	return response.choices[0].message.content.strip()
 
 
-def load_mmlu_pro():
-	dataset = load_dataset("TIGER-Lab/MMLU-Pro")
+def load_mmlu_pro(dataset_id):
+	dataset = load_dataset(dataset_id)
 	test_df, val_df = dataset["test"], dataset["validation"]
 	test_df = preprocess(test_df)
 	val_df = preprocess(val_df)
@@ -208,8 +210,8 @@ def update_result(output_res_path, lock):
 	return res, category_record
 
 
-def evaluate(subjects):
-	test_df, dev_df = load_mmlu_pro()
+def evaluate(subjects, dataset_id):
+	test_df, dev_df = load_mmlu_pro(dataset_id)
 	if not subjects:
 		subjects = list(test_df.keys())
 	print("assigned subjects", subjects)
@@ -386,7 +388,7 @@ if __name__ == "__main__":
 	os.makedirs(output_dir, exist_ok=True)
 	assigned_subjects = config["test"]["categories"]
 	start = time.time()
-	evaluate(assigned_subjects)
+	evaluate(assigned_subjects, config["test"]["dataset"])
 	hours, minutes, seconds = elapsed(start)
 	print(
 		f"Finished the benchmark in {hours} hours, {minutes} minutes, {seconds} seconds."
