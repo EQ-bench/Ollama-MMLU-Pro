@@ -298,7 +298,10 @@ def print_score(label, corr, wrong):
 	corr = int(corr)
 	wrong = int(wrong)
 	total = corr + wrong
-	acc = corr / total * 100
+	if total:
+		acc = corr / total * 100
+	else:
+		acc = 0.0
 	print(f"{label}, {corr}/{total}, {acc:.2f}%")
 
 
